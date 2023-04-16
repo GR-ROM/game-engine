@@ -7,15 +7,14 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
+import su.grinev.engine.models.RawModel;
+import su.grinev.engine.textures.ModelTexture;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
-
-import su.grinev.engine.models.RawModel;
-import su.grinev.engine.textures.ModelTexture;
 
 public class Loader {
     private final List<Integer> vaos;

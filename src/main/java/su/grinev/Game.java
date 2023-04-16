@@ -10,11 +10,13 @@ import su.grinev.engine.models.RawModel;
 import su.grinev.engine.models.TexturedModel;
 import su.grinev.engine.shaders.StaticShader;
 import su.grinev.engine.textures.ModelTexture;
+import su.grinev.engine.voxels.Chunk;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
+import static su.grinev.engine.voxels.CubeModel.texCoords;
 
 public class Game implements Runnable {
     private final static int WIDTH = 1280;
@@ -31,43 +33,37 @@ public class Game implements Runnable {
         renderer = new Renderer(WIDTH, HEIGHT);
         loader = new Loader();
         staticShader = new StaticShader();
-        camera = new Camera(0, 0, 0, 0, 0, -1);
+        camera = new Camera(0, 1, -5, 0, 0, 1);
     }
 
     @Override
     public void run() {
         GL.createCapabilities();
+        Chunk chunk = new Chunk(0, 0);
 
-        float[] model = {
-               -0.5f, 0.5f, 0f,
-               -0.5f, -0.5f, 0f,
-                0.5f, -0.5f, 0f,
-                0.5f, 0.5f, 0f
-        };
+        for (int i = 0; i!= 3; i++) {
+            for (int x = 0; x != 16; x++) {
+                for (int z = 0; z != 16; z++) {
+                    chunk.setBlockId(x, i, z, (byte) 1);
+                }
+            }
+        }
 
-        int[] indices = {
-          0, 1, 3,
-          3, 1, 2
-        };
+            chunk.generateMesh(true);
 
-        float[] textureCoordinates = {
-                0f, 0f,
-                0f, 1f,
-                1f, 1f,
-                1f, 0f
-        };
 
-        RawModel rawModel = loader.loadToVao(model, indices, textureCoordinates);
+        RawModel rawModel = loader.loadToVao(chunk.getVertices(), chunk.getIndices(), texCoords);
         ModelTexture modelTexture = loader.loadTexture("C:\\Users\\Roman\\Desktop\\GameEngine\\src\\main\\resources\\image.png");
         TexturedModel staticModel = new TexturedModel(rawModel, modelTexture);
         List<Entity> entityList = new ArrayList<>();
-        for (int i = 0; i != 1000; i++) {
+        for (int i = 0; i != 1; i++) {
             Entity entity = new Entity(staticModel, new Vector3f(0f, 0, (float)-i * 0.001f), 0, 0, 0, 1);
             entityList.add(entity);
         }
         while (!glfwWindowShouldClose(displayManager.getWindow())) {
-            camera.look(0.0f, 0.01f);
-            camera.moveBackward(0.1f);
+            //camera.look(0.0f, 0.01f);
+            //camera.moveBackward(0.001f);
+            entityList.get(0).increaseRotation(0.1f,0f, 0);
 
             renderer.prepare();
             staticShader.start();

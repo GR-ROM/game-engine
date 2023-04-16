@@ -1,6 +1,5 @@
 package su.grinev.engine.font;
 
-import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
 public class FontRenderer {
