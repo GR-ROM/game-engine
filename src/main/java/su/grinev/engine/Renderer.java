@@ -30,13 +30,13 @@ public class Renderer {
 
     public void prepare() {
         glEnable(GL_DEPTH_TEST);
-        //glEnable(GL_CULL_FACE);
+       // glEnable(GL_CULL_FACE);
 
         GL11.glClearColor(0.33f, 0.66f, 0.99f, 1f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-   //     glCullFace(GL_FRONT);
-   //     glFrontFace(GL_CCW);
+      //  glCullFace(GL_BACK);
+      //  glFrontFace(GL_CCW);
     }
 
     public void render(Camera camera, Entity entity, StaticShader shader) {
@@ -54,7 +54,7 @@ public class Renderer {
 
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, model.modelTexture().textureId());
-        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
         GL11.glDrawElements(GL11.GL_TRIANGLES, model.rawModel().vertexCount(), GL11.GL_UNSIGNED_INT, 0);
 

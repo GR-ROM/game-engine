@@ -1,20 +1,27 @@
 package su.grinev.engine.voxels;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
 public class Chunk {
     public static final int TRANSPARENT_VOXEL_ID = 0;
     public static final int CHUNK_SIZE = 16;
     private static final int CHUNK_SIZE_SQUARED = CHUNK_SIZE * CHUNK_SIZE;
-    public static final int CHUNK_SIZE_HEIGHT = 16;
+    public static final int CHUNK_SIZE_HEIGHT = 256;
     private static final int CHUNK_MAX_SIZE = CHUNK_SIZE_SQUARED * CHUNK_SIZE_HEIGHT;
-    private float[] vertices;
-    private float[] textureCoords;
-    private int[] indices;
-    private byte[] map;
-    private int originX;
-    private int originZ;
-    private int currentVertex;
-    private int currentTexture;
-    private int currentIndex;
+    private static final float[] vertices = new float[CHUNK_MAX_SIZE * 4 * 3 * 6];
+    private final float[] textureCoords;
+    private static final int[] indices = new int[CHUNK_MAX_SIZE * 6 * 6];
+    private final byte[] map;
+    private static final byte[] lightMap = new byte[CHUNK_MAX_SIZE];
+    private final List<LightState> lights = new ArrayList<>();
+
+    private final int originX;
+    private final int originZ;
+    private static int currentVertex;
+    private final int currentTexture;
+    private static int currentIndex;
 
     public Chunk(int originX, int originZ) {
         this.originX = originX;
@@ -24,51 +31,104 @@ public class Chunk {
         this.currentIndex = 0;
         this.currentTexture = 0;
 
-        this.vertices = new float[CHUNK_MAX_SIZE * 4 * 3 * 6];
         this.textureCoords = new float[CHUNK_MAX_SIZE * 4 * 2 * 6];
-        this.indices = new int[CHUNK_MAX_SIZE * 6 * 6];
-
-        this.map = new byte[CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE_HEIGHT];
+        this.map = new byte[CHUNK_MAX_SIZE];
     }
 
-    public void setBlockId(int x, int y, int z, byte id) {
-        if (x >= CHUNK_SIZE || x < 0 || y >= CHUNK_SIZE_HEIGHT || y < 0 || z >= CHUNK_SIZE || z < 0) return;
-        map[x + (y * CHUNK_SIZE_SQUARED) + (z * CHUNK_SIZE_HEIGHT)] = id;
+    public static void setBlockId(Chunk chunk, int x, int y, int z, byte id) {
+        if (x >= CHUNK_SIZE || x < 0 || y >= CHUNK_SIZE_HEIGHT || y < 0 || z >= CHUNK_SIZE || z < 0) {
+            return;
+        }
+        chunk.map[y + (x * CHUNK_SIZE_SQUARED) + (z * CHUNK_SIZE_HEIGHT)] = id;
     }
 
-    public byte getBlockId(int x, int y, int z) {
+    public static byte getBlockId(Chunk chunk, int x, int y, int z) {
         if (x >= CHUNK_SIZE || x < 0 || y >= CHUNK_SIZE_HEIGHT || y < 0 || z >= CHUNK_SIZE || z < 0) {
             return TRANSPARENT_VOXEL_ID;
         }
-        return map[x + (y * CHUNK_SIZE_SQUARED) + (z * CHUNK_SIZE_HEIGHT)];
+        return chunk.map[y + (x * CHUNK_SIZE_SQUARED) + (z * CHUNK_SIZE_HEIGHT)];
     }
 
-    public void generateMesh(boolean optimize) {
+    public static void generateMesh(Chunk chunk, boolean optimize) {
         long time = System.nanoTime();
         currentVertex = 0;
         currentIndex = 0;
         for (int x = 0; x != CHUNK_SIZE; x++) {
+            for (int z = 0; z != CHUNK_SIZE; z++) {
                 for (int y = 0; y != CHUNK_SIZE_HEIGHT; y++) {
-                    for (int z = 0; z != CHUNK_SIZE; z++) {
-                    if (getBlockId(x, y, z) == TRANSPARENT_VOXEL_ID) { continue; }
+                    if (getBlockId(chunk, x, y, z) == TRANSPARENT_VOXEL_ID) { continue; }
 
-                    if (getBlockId(x + 1, y, z) == TRANSPARENT_VOXEL_ID || !optimize) addBlockFace(x, y, z, CubeModel.FRONT_FACE);
-                    if (getBlockId(x - 1, y, z) == TRANSPARENT_VOXEL_ID || !optimize) addBlockFace(x, y, z, CubeModel.BACK_FACE);
-                    if (getBlockId(x, y + 1, z) == TRANSPARENT_VOXEL_ID || !optimize) addBlockFace(x, y, z, CubeModel.TOP_FACE);
-                    if (getBlockId(x, y - 1, z) == TRANSPARENT_VOXEL_ID || !optimize) addBlockFace(x, y, z, CubeModel.BOTTOM_FACE);
-                    if (getBlockId(x, y, z + 1) == TRANSPARENT_VOXEL_ID || !optimize) addBlockFace(x, y, z, CubeModel.LEFT_FACE);
-                    if (getBlockId(x, y, z - 1) == TRANSPARENT_VOXEL_ID || !optimize) addBlockFace(x, y, z, CubeModel.RIGHT_FACE);;
+                    if (getBlockId(chunk,x + 1, y, z) == TRANSPARENT_VOXEL_ID || !optimize) addBlockFace(x, y, z, CubeModel.FRONT_FACE);
+                    if (getBlockId(chunk,x - 1, y, z) == TRANSPARENT_VOXEL_ID || !optimize) addBlockFace(x, y, z, CubeModel.BACK_FACE);
+                    if (getBlockId(chunk, x, y + 1, z) == TRANSPARENT_VOXEL_ID || !optimize) addBlockFace(x, y, z, CubeModel.TOP_FACE);
+                    if (getBlockId(chunk, x, y - 1, z) == TRANSPARENT_VOXEL_ID || !optimize) addBlockFace(x, y, z, CubeModel.BOTTOM_FACE);
+                    if (getBlockId(chunk, x, y, z + 1) == TRANSPARENT_VOXEL_ID || !optimize) addBlockFace(x, y, z, CubeModel.LEFT_FACE);
+                    if (getBlockId(chunk, x, y, z - 1) == TRANSPARENT_VOXEL_ID || !optimize) addBlockFace(x, y, z, CubeModel.RIGHT_FACE);;
                 }
             }
         }
         time = (System.nanoTime() - time) / 1000;
         System.out.println("Meshed in: " + time + "us");
-        System.out.println("Vertices: " + this.getVerticesSize());
-        System.out.println("Indices: " + this.getIndices());
+        System.out.println("Vertices: " + chunk.getVerticesSize() / 3 + " size: " + (float)chunk.getVerticesSize() * 4 / 1024f + "KB");
+        System.out.println("Indices: " + chunk.getIndicesSize() + " size: " + (float)chunk.getIndicesSize() * 4 / 1024f + "KB");
     }
 
+    private static void computeLightMap(Chunk chunk) {
+        List<LightState> queue = new LinkedList<>();
+        for (LightState lightState: chunk.lights) {
+            queue.add(lightState);
 
-    private void addBlockFace(int x, int y, int z, float[] face) {
+            while (!queue.isEmpty()) {
+                LightState currentLightState = queue.remove(0);
+                // TODO: apply light level to map
+
+                if (getBlockId(chunk, currentLightState.getX() + 1, currentLightState.getY(), currentLightState.getZ()) == TRANSPARENT_VOXEL_ID) {
+                    queue.add(new LightState(
+                            currentLightState.getLightLevel() - 1,
+                            currentLightState.getX() + 1,
+                            currentLightState.getY(),
+                            currentLightState.getZ()));
+                }
+                if (getBlockId(chunk, currentLightState.getX() - 1, currentLightState.getY(), currentLightState.getZ()) == TRANSPARENT_VOXEL_ID) {
+                    queue.add(new LightState(
+                            currentLightState.getLightLevel() - 1,
+                            currentLightState.getX() - 1,
+                            currentLightState.getY(),
+                            currentLightState.getZ()));
+                }
+                if (getBlockId(chunk, currentLightState.getX(), currentLightState.getY() + 1, currentLightState.getZ()) == TRANSPARENT_VOXEL_ID) {
+                    queue.add(new LightState(
+                            currentLightState.getLightLevel() - 1,
+                            currentLightState.getX(),
+                            currentLightState.getY() + 1,
+                            currentLightState.getZ()));
+                }
+                if (getBlockId(chunk, currentLightState.getX(), currentLightState.getY() - 1, currentLightState.getZ()) == TRANSPARENT_VOXEL_ID) {
+                    queue.add(new LightState(
+                            currentLightState.getLightLevel() - 1,
+                            currentLightState.getX(),
+                            currentLightState.getY() - 1,
+                            currentLightState.getZ()));
+                }
+                if (getBlockId(chunk, currentLightState.getX() - 1, currentLightState.getY(), currentLightState.getZ() + 1) == TRANSPARENT_VOXEL_ID) {
+                    queue.add(new LightState(
+                            currentLightState.getLightLevel() - 1,
+                            currentLightState.getX(),
+                            currentLightState.getY(),
+                            currentLightState.getZ() + 1));
+                }
+                if (getBlockId(chunk, currentLightState.getX(), currentLightState.getY(), currentLightState.getZ() - 1) == TRANSPARENT_VOXEL_ID) {
+                    queue.add(new LightState(
+                            currentLightState.getLightLevel() - 1,
+                            currentLightState.getX(),
+                            currentLightState.getY(),
+                            currentLightState.getZ() - 1));
+                }
+            }
+        }
+    }
+
+    private static void addBlockFace(int x, int y, int z, float[] face) {
         int index = currentVertex / 3;
 
         vertices[currentVertex++] = x + face[0];

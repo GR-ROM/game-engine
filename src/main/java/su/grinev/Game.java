@@ -1,5 +1,6 @@
 package su.grinev;
 
+import org.joml.Math;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL;
 import su.grinev.engine.Camera;
@@ -15,6 +16,7 @@ import su.grinev.engine.voxels.Chunk;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.Math.sin;
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 import static su.grinev.engine.voxels.CubeModel.texCoords;
 
@@ -33,7 +35,7 @@ public class Game implements Runnable {
         renderer = new Renderer(WIDTH, HEIGHT);
         loader = new Loader();
         staticShader = new StaticShader();
-        camera = new Camera(0, 1, -5, 0, 0, 1);
+        camera = new Camera(8, 10, -9, 0, -0.5f, 1);
     }
 
     @Override
@@ -41,15 +43,16 @@ public class Game implements Runnable {
         GL.createCapabilities();
         Chunk chunk = new Chunk(0, 0);
 
-        for (int i = 0; i!= 3; i++) {
             for (int x = 0; x != 16; x++) {
                 for (int z = 0; z != 16; z++) {
-                    chunk.setBlockId(x, i, z, (byte) 1);
+                    int height = (int) Math.floor(15 * (sin(Math.toRadians((float) x)) + sin(Math.toRadians((float) z))));
+                    for (int y = 0; y != 16; y++) {
+                        chunk.setBlockId(chunk, x, y, z, y <= height ? (byte) 1 : 0);
+                    }
                 }
             }
-        }
 
-            chunk.generateMesh(true);
+        chunk.generateMesh(chunk,true);
 
 
         RawModel rawModel = loader.loadToVao(chunk.getVertices(), chunk.getIndices(), texCoords);
@@ -63,7 +66,7 @@ public class Game implements Runnable {
         while (!glfwWindowShouldClose(displayManager.getWindow())) {
             //camera.look(0.0f, 0.01f);
             //camera.moveBackward(0.001f);
-            entityList.get(0).increaseRotation(0.1f,0f, 0);
+            //camera.look(0, 0.001f);
 
             renderer.prepare();
             staticShader.start();
