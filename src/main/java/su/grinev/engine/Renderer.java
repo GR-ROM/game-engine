@@ -11,6 +11,7 @@ import su.grinev.engine.shaders.StaticShader;
 import su.grinev.engine.toolbox.Maths;
 
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL13C.GL_MULTISAMPLE;
 
 public class Renderer {
     private final int width;
@@ -29,6 +30,7 @@ public class Renderer {
     }
 
     public void prepare() {
+        glEnable(GL_MULTISAMPLE);
         glEnable(GL_DEPTH_TEST);
        // glEnable(GL_CULL_FACE);
 
@@ -54,7 +56,7 @@ public class Renderer {
 
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, model.modelTexture().textureId());
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+       // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
         GL11.glDrawElements(GL11.GL_TRIANGLES, model.rawModel().vertexCount(), GL11.GL_UNSIGNED_INT, 0);
 

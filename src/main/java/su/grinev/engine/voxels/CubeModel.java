@@ -1,6 +1,7 @@
 package su.grinev.engine.voxels;
 
 public class CubeModel {
+    public static final float TEXTURE_STEP = 1 / 8f;
     public static float[] FRONT_FACE = {
             // Front face
             0.5f,-0.5f,0.5f,  // 0
@@ -50,39 +51,68 @@ public class CubeModel {
             0.5f,-0.5f,0.5f
     };
 
-    public static float[] texCoords = {
-            // Front face
-            0.0f, 0.0f,
-            1.0f, 0.0f,
-            1.0f, 1.0f,
-            0.0f, 1.0f,
-            // Back
-            1.0f, 0.0f,
-            1.0f, 1.0f,
-            0.0f, 1.0f,
-            0.0f, 0.0f,
-            // Top face
-            0.0f, 1.0f,
-            0.0f, 0.0f,
-            1.0f, 0.0f,
-            1.0f, 1.0f,
-            // Bottom face
-            1.0f, 1.0f,
-            0.0f, 1.0f,
-            0.0f, 0.0f,
-            1.0f, 0.0f,
-            // Right face
-            1.0f, 0.0f,
-            1.0f, 1.0f,
-            0.0f, 1.0f,
-            0.0f, 0.0f,
-            // Left face
-            0.0f, 0.0f,
-            1.0f, 0.0f,
-            1.0f, 1.0f,
-            0.0f, 1.0f
+    public static float[] FRONT_FACE_TEXTURE_CORDS = {
+            0.0f * TEXTURE_STEP, (8 - 0.0f) * TEXTURE_STEP,
+            1.0f * TEXTURE_STEP, (8 - 0.0f) * TEXTURE_STEP,
+            1.0f * TEXTURE_STEP, (8 - 1.0f) * TEXTURE_STEP,
+            0.0f * TEXTURE_STEP, (8 - 1.0f) * TEXTURE_STEP,
     };
 
+    public static float[] SIDE_RIGHT_FACE_TEXTURE_CORDS = {
+            (1 + 0.0f) * TEXTURE_STEP, (8 - 1.0f) * TEXTURE_STEP,
+            (1 + 1.0f) * TEXTURE_STEP, (8 - 1.0f) * TEXTURE_STEP,
+            (1 + 1.0f) * TEXTURE_STEP, (8 - 0.0f) * TEXTURE_STEP,
+            (1 + 0.0f) * TEXTURE_STEP, (8 - 0.0f) * TEXTURE_STEP,
+    };
+
+    public static float[] SIDE_LEFT_FACE_TEXTURE_CORDS = {
+            (1 + 1.0f) * TEXTURE_STEP, (8 - 0.0f) * TEXTURE_STEP,
+            (1 + 1.0f) * TEXTURE_STEP, (8 - 1.0f) * TEXTURE_STEP,
+            (1 + 0.0f) * TEXTURE_STEP, (8 - 1.0f) * TEXTURE_STEP,
+            (1 + 0.0f) * TEXTURE_STEP, (8 - 0.0f) * TEXTURE_STEP
+    };
+
+    public static float[] FRONT_FACE_TEXTURE_COORDS = {
+            0.0f, 0.0f,
+            0.0f, 1.0f,
+            1.0f, 1.0f,
+            1.0f, 0.0f
+    };
+
+    public static float[] BACK_FACE_TEXTURE_COORDS = {
+            1.0f, 0.0f,
+            1.0f, 1.0f,
+            0.0f, 1.0f,
+            0.0f, 0.0f
+    };
+
+    public static float[] LEFT_FACE_TEXTURE_COORDS = {
+            1.0f, 0.0f,
+            1.0f, 1.0f,
+            0.0f, 1.0f,
+            0.0f, 0.0f
+    };
+
+    public static float[] RIGHT_FACE_TEXTURE_COORDS = {
+            0.0f, 0.0f,
+            0.0f, 1.0f,
+            1.0f, 1.0f,
+            1.0f, 0.0f
+    };
+
+    public static float[] TOP_FACE_TEXTURE_COORDS = {
+            0.0f, 1.0f,
+            1.0f, 1.0f,
+            1.0f, 0.0f,
+            0.0f, 0.0f
+    };
+
+    public static float[] BOTTOM_FACE_TEXTURE_COORDS = {
+            1.0f, 1.0f,
+            0.0f, 1.0f,
+            0.0f, 0.0f,
+            1.0f, 0.0f
+    };
     public static int[] indices = {
             0, 1, 2, 0, 2, 3,      // Front face
             4, 5, 6, 4, 6, 7,      // Back face

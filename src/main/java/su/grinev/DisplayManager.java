@@ -33,6 +33,7 @@ public class DisplayManager {
 
         // Create the window
         window = glfwCreateWindow(width, height, "Hello World!", NULL, NULL);
+
         if (window == NULL)
             throw new RuntimeException("Failed to create the GLFW window");
 
@@ -59,6 +60,8 @@ public class DisplayManager {
 
         glfwShowWindow(window);
         GL.createCapabilities(true);
+
+        glfwWindowHint(GLFW_SAMPLES, 4);
     }
 
     public void updateDisplay() {

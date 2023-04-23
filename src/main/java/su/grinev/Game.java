@@ -18,7 +18,7 @@ import java.util.List;
 
 import static java.lang.Math.sin;
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
-import static su.grinev.engine.voxels.CubeModel.texCoords;
+
 
 public class Game implements Runnable {
     private final static int WIDTH = 1280;
@@ -35,7 +35,7 @@ public class Game implements Runnable {
         renderer = new Renderer(WIDTH, HEIGHT);
         loader = new Loader();
         staticShader = new StaticShader();
-        camera = new Camera(8, 10, -9, 0, -0.5f, 1);
+        camera = new Camera(-5, 10, 0, 1f, -1f, 1);
     }
 
     @Override
@@ -55,8 +55,8 @@ public class Game implements Runnable {
         chunk.generateMesh(chunk,true);
 
 
-        RawModel rawModel = loader.loadToVao(chunk.getVertices(), chunk.getIndices(), texCoords);
-        ModelTexture modelTexture = loader.loadTexture("C:\\Users\\Roman\\Desktop\\GameEngine\\src\\main\\resources\\image.png");
+        RawModel rawModel = loader.loadToVao(chunk.getVertices(), chunk.getIndices(), chunk.getTextureCoords());
+        ModelTexture modelTexture = loader.loadTexture("C:\\Users\\Roman\\game-engine\\src\\main\\resources\\texture_atlas.png");
         TexturedModel staticModel = new TexturedModel(rawModel, modelTexture);
         List<Entity> entityList = new ArrayList<>();
         for (int i = 0; i != 1; i++) {
@@ -67,6 +67,7 @@ public class Game implements Runnable {
             //camera.look(0.0f, 0.01f);
             //camera.moveBackward(0.001f);
             //camera.look(0, 0.001f);
+            //entityList.get(0).increaseRotation(0f, 0.1f, 0.0f);
 
             renderer.prepare();
             staticShader.start();

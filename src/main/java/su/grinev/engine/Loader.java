@@ -35,7 +35,7 @@ public class Loader {
             IntBuffer heightBuffer = stack.mallocInt(1);
             IntBuffer channelsBuffer = stack.mallocInt(1);
             STBImage.stbi_set_flip_vertically_on_load(true);
-            image = STBImage.stbi_load(filename, widthBuffer, heightBuffer, channelsBuffer, 0);
+            image = STBImage.stbi_load(filename, widthBuffer, heightBuffer, channelsBuffer, 3);
             if (image == null) {
                 throw new RuntimeException("Failed to load texture file " + filename + " : " + STBImage.stbi_failure_reason());
             }
@@ -48,8 +48,8 @@ public class Loader {
         GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
         GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, image);
         STBImage.stbi_image_free(image);
         return new ModelTexture(textureId);
